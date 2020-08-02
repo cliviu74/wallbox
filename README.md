@@ -4,6 +4,7 @@ Python Module interface for Wallbox EV chargers api
 ## Usage
 #### Installation
 `pip install wallbox`
+
 #### Simple example
 ```python
 from wallbox import Wallbox
