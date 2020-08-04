@@ -47,4 +47,4 @@ class Wallbox:
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
             raise(err) 
-        return response.text
+        return json.loads(response.text)
