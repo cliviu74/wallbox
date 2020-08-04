@@ -8,9 +8,6 @@ Wallbox class
 
 """
 
-wallboxApiBaseUrl = 'https://api.wall-box.com/'
-chargersStatusUrl = 'chargers/status/{chargerId}'
-
 
 class Wallbox:
     def __init__ (self, username, password):
@@ -18,7 +15,11 @@ class Wallbox:
       self.password = password
       self.baseUrl = 'https://api.wall-box.com/'
       self.jwtToken = ''
-
+      self.headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json;charset=UTF-8",
+        }
+    
     def authenticate(self):
         try:
             response = requests.get(f"{self.baseUrl}auth/token/user", auth=HTTPBasicAuth(self.username, self.password))
@@ -26,7 +27,7 @@ class Wallbox:
         except requests.exceptions.HTTPError as err:
             raise(err)
         self.jwtToken = json.loads(response.text)["jwt"]
-        self.headers = {'Authorization': "Bearer " + self.jwtToken}
+        self.headers["Authorization"] = f"Bearer {self.jwtToken}"
     
     def getChargersList(self):
         chargerIds = []
@@ -46,4 +47,4 @@ class Wallbox:
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
             raise(err) 
-        return json.loads(response.text)
+        return response.text
