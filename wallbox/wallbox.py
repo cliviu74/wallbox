@@ -48,3 +48,19 @@ class Wallbox:
         except requests.exceptions.HTTPError as err:
             raise(err) 
         return json.loads(response.text)
+    
+    def unlockCharger(self,chargerId):
+        try:
+            response = requests.put(f"{self.baseUrl}v2/charger/{chargerId}", headers=self.headers, data='{"locked":0}')
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise(err)
+        return json.loads(response.text)
+
+    def lockCharger(self,chargerId):
+        try:
+            response = requests.put(f"{self.baseUrl}v2/charger/{chargerId}", headers=self.headers, data='{"locked":1}')
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise(err)
+        return json.loads(response.text)
