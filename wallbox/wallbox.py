@@ -9,15 +9,19 @@ Wallbox class
 """
 
 wallboxApiBaseUrl = 'https://api.wall-box.com/'
+chargersStatusUrl = 'chargers/status/{chargerId}'
+
 
 class Wallbox:
     def __init__ (self, username, password):
       self.username = username
       self.password = password
+      self.baseUrl = 'https://api.wall-box.com/'
+      self.jwtToken = ''
 
     def authenticate(self):
         try:
-            response = requests.get(wallboxApiBaseUrl + 'auth/token/user', auth=HTTPBasicAuth(self.username, self.password))
+            response = requests.get(f"{self.baseUrl}auth/token/user", auth=HTTPBasicAuth(self.username, self.password))
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
             raise(err)
@@ -27,7 +31,7 @@ class Wallbox:
     def getChargersList(self):
         chargerIds = []
         try:
-            response = requests.get(wallboxApiBaseUrl + 'v3/chargers/groups', headers=self.headers)
+            response = requests.get(f"{self.baseUrl}v3/chargers/groups", headers=self.headers)
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
             raise(err) 
@@ -38,8 +42,8 @@ class Wallbox:
     
     def getChargerData(self,chargerId):
         try:
-            response = requests.get(wallboxApiBaseUrl + 'v2/charger/' + str(chargerId), headers=self.headers)
+            response = requests.get(f"{self.baseUrl}chargers/status/{chargerId}", headers=self.headers)
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
             raise(err) 
-        return json.loads(response.text)["data"]["chargerData"]
+        return json.loads(response.text)
