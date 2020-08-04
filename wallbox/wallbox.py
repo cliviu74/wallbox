@@ -1,6 +1,3 @@
-from requests.auth import HTTPBasicAuth
-import requests 
-import json
 
 """
 
@@ -8,6 +5,9 @@ Wallbox class
 
 """
 
+from requests.auth import HTTPBasicAuth
+import requests 
+import json
 
 class Wallbox:
     def __init__ (self, username, password):
