@@ -41,7 +41,7 @@ class Wallbox:
                 chargerIds.append(charger["id"])
         return chargerIds
     
-    def getChargerData(self,chargerId):
+    def getChargerStatus(self,chargerId):
         try:
             response = requests.get(f"{self.baseUrl}chargers/status/{chargerId}", headers=self.headers)
             response.raise_for_status()
