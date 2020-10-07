@@ -94,7 +94,7 @@ class Wallbox:
 
     def pauseChargingSession(self, chargerId):
         try:
-            response = requests.put(
+            response = requests.post(
                 f"{self.baseUrl}v3/chargers/{chargerId}/remote-action",
                 headers=self.headers,
                 data='{"action":2}',
@@ -106,7 +106,7 @@ class Wallbox:
 
     def resumeChargingSession(self, chargerId):
         try:
-            response = requests.put(
+            response = requests.post(
                 f"{self.baseUrl}v3/chargers/{chargerId}/remote-action",
                 headers=self.headers,
                 data='{"action":1}',
