@@ -91,3 +91,27 @@ class Wallbox:
         except requests.exceptions.HTTPError as err:
             raise (err)
         return json.loads(response.text)
+
+    def pauseChargingSession(self, chargerId):
+        try:
+            response = requests.put(
+                f"{self.baseUrl}v3/chargers/{chargerId}/remote-action",
+                headers=self.headers,
+                data='{"action":2}',
+            )
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise (err)
+        return json.loads(response.text)
+
+    def resumeChargingSession(self, chargerId):
+        try:
+            response = requests.put(
+                f"{self.baseUrl}v3/chargers/{chargerId}/remote-action",
+                headers=self.headers,
+                data='{"action":1}',
+            )
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise (err)
+        return json.loads(response.text)
