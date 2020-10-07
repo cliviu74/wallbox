@@ -1,11 +1,51 @@
 # wallbox
+
 Python Module interface for Wallbox EV chargers api
 
 ## Usage
-#### Installation
-`pip install wallbox`
 
-#### Simple example
+### Installation
+
+```python
+pip install wallbox
+```
+
+## Implemented methods
+
+### authenticate()
+
+- authenticates to the wallbox api.
+
+### getChargersList()
+
+- returns a list of chargers available to the account
+
+### getChargerStatus(chargerID)
+
+- returns a dictionary containing the charger status data
+
+### unlockCharger(chargerId)
+
+- unlocks charger
+
+### lockCharger(chargerId)
+
+- locks charger
+
+### setMaxChargingCurrent(chargerId, chargingCurrentValue)
+
+- sets charger Maximum Charging Current (Amps)
+
+### pauseChargingSession(chargerId)
+
+- pauses a charging session
+
+### resumeChargingSession(chargerId)
+
+- resumes a charging session
+
+## Simple example
+
 ```python
 from wallbox import Wallbox
 
@@ -31,6 +71,5 @@ for chargerId in w.getChargersList():
     w.unlockCharger(chargerId)
     time.sleep(10)
     chargerStatus = w.getChargerStatus(chargerId)
-    print(f"Charger {chargerId} lock status {chargerStatus['config_data']['locked']}")   
+    print(f"Charger {chargerId} lock status {chargerStatus['config_data']['locked']}")
 ```
-
