@@ -49,7 +49,6 @@ pip install wallbox
 ```python
 from wallbox import Wallbox
 
-from wallbox import Wallbox
 w = Wallbox("user@email", "password")
 
 # Authenticate with the credentials above
