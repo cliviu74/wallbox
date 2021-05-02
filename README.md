@@ -53,6 +53,8 @@ pip install wallbox
 
 ```python
 from wallbox import Wallbox
+import time
+import datetime
 
 w = Wallbox("user@email", "password")
 
@@ -67,6 +69,10 @@ for chargerId in w.getChargersList():
     chargerStatus = w.getChargerStatus(chargerId)
     print(f"Charger Status: {chargerStatus}")
     print(f"Lock Charger {chargerId}")
+    endDate = datetime.datetime.now()
+    startDate = endDate - datetime.timedelta(days = 30)
+    sessionList = w.getSessionList(chargerId, startDate, endDate)
+    print(f"Session List: {sessionList}")
     w.lockCharger(chargerId)
     time.sleep(10)
     chargerStatus = w.getChargerStatus(chargerId)
