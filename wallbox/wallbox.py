@@ -118,7 +118,7 @@ class Wallbox:
 
     def getSessionList(self, chargerId, startDate, endDate):
         try:
-            payload = {'charger': chargerId, 'start_date': startDate, 'end_date': endDate }
+            payload = {'charger': chargerId, 'start_date': startDate.timestamp(), 'end_date': endDate.timestamp() }
 
             response = requests.get(
                 f"{self.baseUrl}v4/sessions/stats", params=payload, headers=self.headers

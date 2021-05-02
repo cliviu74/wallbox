@@ -44,6 +44,11 @@ pip install wallbox
 
 - resumes a charging session
 
+### getSessionList(chargerId, startDate, endDate)
+
+- provides the list of charging sessions between startDate and endDate
+- startDate and endDate are provided in python datetime format
+
 ## Simple example
 
 ```python
