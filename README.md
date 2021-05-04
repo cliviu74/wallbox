@@ -4,6 +4,11 @@ Python Module interface for Wallbox EV chargers api
 
 ## Usage
 
+### Requirements
+
+Python 3.7 or older
+Python modules "requests>=2.22.0", "simplejson>=3.16.0"
+
 ### Installation
 
 ```python
