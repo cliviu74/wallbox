@@ -47,7 +47,7 @@ pip install wallbox
 ### getSessionList(chargerId, startDate, endDate)
 
 - provides the list of charging sessions between startDate and endDate
-- startDate and endDate are provided in Python datetime format
+- startDate and endDate are provided in Python datetime format (i.e. 2021-05-04 08:41:12.765644)
 
 ## Simple example
 
