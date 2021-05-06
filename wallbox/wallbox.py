@@ -115,3 +115,15 @@ class Wallbox:
         except requests.exceptions.HTTPError as err:
             raise (err)
         return json.loads(response.text)
+
+    def getSessionList(self, chargerId, startDate, endDate):
+        try:
+            payload = {'charger': chargerId, 'start_date': startDate.timestamp(), 'end_date': endDate.timestamp() }
+
+            response = requests.get(
+                f"{self.baseUrl}v4/sessions/stats", params=payload, headers=self.headers
+            )
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise (err)
+        return json.loads(response.text)
