@@ -10,9 +10,10 @@ import json
 
 
 class Wallbox:
-    def __init__(self, username, password):
+    def __init__(self, username, password, requestGetTimeout = None):
         self.username = username
         self.password = password
+        self._requestGetTimeout = requestGetTimeout
         self.baseUrl = "https://api.wall-box.com/"
         self.jwtToken = ""
         self.headers = {
@@ -20,11 +21,16 @@ class Wallbox:
             "Content-Type": "application/json;charset=UTF-8",
         }
 
+    @property
+    def requestGetTimeout(self):
+        return self._requestGetTimeout
+
     def authenticate(self):
         try:
             response = requests.get(
                 f"{self.baseUrl}auth/token/user",
                 auth=HTTPBasicAuth(self.username, self.password),
+                timeout=self._requestGetTimeout
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
@@ -36,7 +42,8 @@ class Wallbox:
         chargerIds = []
         try:
             response = requests.get(
-                f"{self.baseUrl}v3/chargers/groups", headers=self.headers
+                f"{self.baseUrl}v3/chargers/groups", headers=self.headers,
+                timeout=self._requestGetTimeout
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
@@ -49,7 +56,8 @@ class Wallbox:
     def getChargerStatus(self, chargerId):
         try:
             response = requests.get(
-                f"{self.baseUrl}chargers/status/{chargerId}", headers=self.headers
+                f"{self.baseUrl}chargers/status/{chargerId}", headers=self.headers,
+                timeout=self._requestGetTimeout
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
@@ -121,7 +129,8 @@ class Wallbox:
             payload = {'charger': chargerId, 'start_date': startDate.timestamp(), 'end_date': endDate.timestamp() }
 
             response = requests.get(
-                f"{self.baseUrl}v4/sessions/stats", params=payload, headers=self.headers
+                f"{self.baseUrl}v4/sessions/stats", params=payload, headers=self.headers,
+                timeout=self._requestGetTimeout
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
