@@ -16,7 +16,7 @@ setup(
     author="Liviu Chiribuca",
     author_email="cliviu74@yahoo.com",
     url="https://github.com/cliviu74/wallbox",
-    license="MIT",
+    license="Apache 2",
     packages=["wallbox"],
     install_requires=["requests>=2.22.0", "simplejson>=3.16.0"],
     python_requires=">=3.7",
