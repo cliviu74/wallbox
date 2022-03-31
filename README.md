@@ -4,8 +4,9 @@ Python Module interface for Wallbox EV chargers api
 
 ## Requirements
 
-Python 3.7 or older
-Python modules "requests>=2.22.0", "simplejson>=3.16.0"
+Python 3.7 or older Python modules "requests>=2.22.0", "simplejson>=3.16.0"
+
+Python module "aenum>=3.1.8"
 
 ## Installation
 
@@ -55,7 +56,7 @@ pip install wallbox
 ## Simple example
 
 ```python
-from wallbox import Wallbox
+from wallbox import Wallbox, Statuses
 import time
 import datetime
 
@@ -85,4 +86,7 @@ for chargerId in w.getChargersList():
     time.sleep(10)
     chargerStatus = w.getChargerStatus(chargerId)
     print(f"Charger {chargerId} lock status {chargerStatus['config_data']['locked']}")
+
+    # Print the status the charger is currently in using the status id
+    print(f"Charger Mode: {Statuses(chargerStatus['status_id']).name}")
 ```
