@@ -4,6 +4,8 @@ Wallbox class
 
 """
 
+from datetime import datetime
+from time import timezone
 from requests.auth import HTTPBasicAuth
 import requests
 import json
@@ -15,7 +17,9 @@ class Wallbox:
         self.password = password
         self._requestGetTimeout = requestGetTimeout
         self.baseUrl = "https://api.wall-box.com/"
+        self.authUrl = "https://user-api.wall-box.com/"
         self.jwtToken = ""
+        self.jwtTokenTtl = 0
         self.headers = {
             "Accept": "application/json",
             "Content-Type": "application/json;charset=UTF-8",
@@ -26,16 +30,21 @@ class Wallbox:
         return self._requestGetTimeout
 
     def authenticate(self):
+        if self.jwtToken != "" and self.jwtTokenTtl > datetime.timestamp(datetime.now()):
+            return
+
         try:
             response = requests.get(
-                f"{self.baseUrl}auth/token/user",
+                f"{self.authUrl}users/signin",
                 auth=HTTPBasicAuth(self.username, self.password),
+                headers={'Partner': 'wallbox'},
                 timeout=self._requestGetTimeout
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
             raise (err)
-        self.jwtToken = json.loads(response.text)["jwt"]
+        self.jwtToken = json.loads(response.text)["data"]["attributes"]["token"]
+        self.jwtTokenTtl = json.loads(response.text)["data"]["attributes"]["ttl"]
         self.headers["Authorization"] = f"Bearer {self.jwtToken}"
 
     def getChargersList(self):
