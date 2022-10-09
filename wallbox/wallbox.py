@@ -30,7 +30,7 @@ class Wallbox:
         return self._requestGetTimeout
 
     def authenticate(self):
-        if self.jwtToken != "" and self.jwtTokenTtl > datetime.timestamp(datetime.now()):
+        if self.jwtToken != "" and (self.jwtTokenTtl/1000) > datetime.timestamp(datetime.now()):
             return
 
         try:
