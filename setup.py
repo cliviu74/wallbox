@@ -8,7 +8,7 @@ def read(name):
 
 setup(
     name="wallbox",
-    version="0.4.9",
+    version="0.4.10",
     description="Module for interacting with Wallbox EV charger api",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
