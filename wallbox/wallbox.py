@@ -12,12 +12,13 @@ import json
 
 
 class Wallbox:
-    def __init__(self, username, password, requestGetTimeout = None):
+    def __init__(self, username, password, requestGetTimeout = None, jwtTokenDrift = 0):
         self.username = username
         self.password = password
         self._requestGetTimeout = requestGetTimeout
         self.baseUrl = "https://api.wall-box.com/"
         self.authUrl = "https://user-api.wall-box.com/"
+        self.jwtTokenDrift = jwtTokenDrift
         self.jwtToken = ""
         self.jwtTokenTtl = 0
         self.headers = {
@@ -30,7 +31,9 @@ class Wallbox:
         return self._requestGetTimeout
 
     def authenticate(self):
-        if self.jwtToken != "" and (self.jwtTokenTtl/1000) > datetime.timestamp(datetime.now()):
+        if self.jwtToken != "" and round(
+            (self.jwtTokenTtl / 1000) - jwtTokenDrift, 0
+        ) > datetime.timestamp(datetime.now()):
             return
 
         try:
