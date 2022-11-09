@@ -32,7 +32,7 @@ class Wallbox:
 
     def authenticate(self):
         if self.jwtToken != "" and round(
-            (self.jwtTokenTtl / 1000) - jwtTokenDrift, 0
+            (self.jwtTokenTtl / 1000) - self.jwtTokenDrift, 0
         ) > datetime.timestamp(datetime.now()):
             return
 
