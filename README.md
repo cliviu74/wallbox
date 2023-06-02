@@ -53,6 +53,10 @@ pip install wallbox
 - provides the list of charging sessions between startDate and endDate
 - startDate and endDate are provided in Python datetime format (i.e. 2021-05-04 08:41:12.765644)
 
+### setEnergyCost(chargerId, energyCost)
+
+- sets the energy cost for the charger per kWh
+
 ## Simple example
 
 ```python
@@ -86,6 +90,9 @@ for chargerId in w.getChargersList():
     time.sleep(10)
     chargerStatus = w.getChargerStatus(chargerId)
     print(f"Charger {chargerId} lock status {chargerStatus['config_data']['locked']}")
+    # Set charger Energy Cost to 0.1€/kWh
+    energyCost = w.setEnergyCost(chargerId, 0.1)
+    print(f"Charger {chargerId} energy cost {energyCost['energy_price']} {energyCost['currency']['symbol']}")
 
     # Print the status the charger is currently in using the status id
     print(f"Charger Mode: {Statuses(chargerStatus['status_id']).name}")
