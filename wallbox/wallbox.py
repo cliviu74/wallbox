@@ -10,6 +10,8 @@ from requests.auth import HTTPBasicAuth
 import requests
 import json
 
+from wallbox.bearerauth import BearerAuth
+
 
 class Wallbox:
     def __init__(self, username, password, requestGetTimeout = None, jwtTokenDrift = 0):
@@ -20,10 +22,13 @@ class Wallbox:
         self.authUrl = "https://user-api.wall-box.com/"
         self.jwtTokenDrift = jwtTokenDrift
         self.jwtToken = ""
+        self.jwtRefreshToken = ""
         self.jwtTokenTtl = 0
+        self.jwtRefreshTokenTtl = 0
         self.headers = {
             "Accept": "application/json",
             "Content-Type": "application/json;charset=UTF-8",
+            "User-Agent": "HomeAssistantWallboxPlugin/1.0.0",
         }
 
     @property
@@ -31,23 +36,36 @@ class Wallbox:
         return self._requestGetTimeout
 
     def authenticate(self):
-        if self.jwtToken != "" and round(
-            (self.jwtTokenTtl / 1000) - self.jwtTokenDrift, 0
-        ) > datetime.timestamp(datetime.now()):
-            return
+        auth_path = "users/signin"
+        auth = HTTPBasicAuth(self.username, self.password)
+        # if already has token:
+        if self.jwtToken != "":
+            # check if token is still valid
+            if round((self.jwtTokenTtl / 1000) - self.jwtTokenDrift, 0) > datetime.timestamp(datetime.now()):
+                return
+            # if not, check if refresh token is still valid
+            elif (self.jwtRefreshToken != ""
+                  and round((self.jwtRefreshTokenTtl / 1000) - self.jwtTokenDrift, 0)
+                  > datetime.timestamp(datetime.now())):
+                # try to refresh token
+                auth_path = "users/refresh-token"
+                auth = BearerAuth(self.jwtRefreshToken)
 
         try:
             response = requests.get(
-                f"{self.authUrl}users/signin",
-                auth=HTTPBasicAuth(self.username, self.password),
+                f"{self.authUrl}{auth_path}",
+                auth=auth,
                 headers={'Partner': 'wallbox'},
                 timeout=self._requestGetTimeout
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
             raise (err)
+
         self.jwtToken = json.loads(response.text)["data"]["attributes"]["token"]
+        self.jwtRefreshToken = json.loads(response.text)["data"]["attributes"]["refresh_token"]
         self.jwtTokenTtl = json.loads(response.text)["data"]["attributes"]["ttl"]
+        self.jwtRefreshTokenTtl = json.loads(response.text)["data"]["attributes"]["refresh_token_ttl"]
         self.headers["Authorization"] = f"Bearer {self.jwtToken}"
 
     def getChargersList(self):
