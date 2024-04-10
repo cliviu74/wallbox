@@ -8,11 +8,7 @@ from requests.auth import HTTPBasicAuth
 import requests
 import json
 
-try:
-    from .bearerauth import BearerAuth
-except:
-    from bearerauth import BearerAuth
-
+from wallbox.bearerauth import BearerAuth
 
 DEFAULT_TIMEOUT_S = 5
 RETRY_ON_TIMEOUT_NUMBER = 3
