@@ -7,7 +7,11 @@ from datetime import datetime
 from requests.auth import HTTPBasicAuth
 import requests
 import json
-import bearerauth
+
+try:
+    from .bearerauth import BearerAuth
+except:
+    from bearerauth import BearerAuth
 
 
 DEFAULT_TIMEOUT_S = 5
@@ -50,7 +54,7 @@ class Wallbox:
                   > datetime.timestamp(datetime.now())):
                 # try to refresh token
                 auth_path = "users/refresh-token"
-                auth = bearerauth.BearerAuth(self.jwtRefreshToken)
+                auth = BearerAuth(self.jwtRefreshToken)
 
         try:
             response = requests.get(
