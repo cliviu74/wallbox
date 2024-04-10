@@ -40,49 +40,18 @@ class Wallbox:
     def requestGetTimeout(self):
         return self._requestTimeout
 
-    def authenticate(self):
-        auth_path = "users/signin"
-        auth = HTTPBasicAuth(self.username, self.password)
-        # if already has token:
-        if self.jwtToken != "":
-            # check if token is still valid
-            if round((self.jwtTokenTtl / 1000) - self.jwtTokenDrift, 0) > datetime.timestamp(datetime.now()):
-                return
-            # if not, check if refresh token is still valid
-            elif (self.jwtRefreshToken != ""
-                  and round((self.jwtRefreshTokenTtl / 1000) - self.jwtTokenDrift, 0)
-                  > datetime.timestamp(datetime.now())):
-                # try to refresh token
-                auth_path = "users/refresh-token"
-                auth = BearerAuth(self.jwtRefreshToken)
 
-        try:
-            response = requests.get(
-                f"{self.authUrl}{auth_path}",
-                auth=auth,
-                headers={'Partner': 'wallbox'},
-                timeout=self._requestTimeout
-            )
-            response.raise_for_status()
-        except requests.exceptions.HTTPError as err:
-            raise (err)
+    def _request_method_helper(self, method, url, overcharge_headers=None, **kwargs):
 
-        self.jwtToken = json.loads(response.text)["data"]["attributes"]["token"]
-        self.jwtRefreshToken = json.loads(response.text)["data"]["attributes"]["refresh_token"]
-        self.jwtTokenTtl = json.loads(response.text)["data"]["attributes"]["ttl"]
-        self.jwtRefreshTokenTtl = json.loads(response.text)["data"]["attributes"]["refresh_token_ttl"]
-        self.headers["Authorization"] = f"Bearer {self.jwtToken}"
-
-
-
-
-    def _request_method_helper(self, method, url, **kwargs):
+        headers = overcharge_headers
+        if overcharge_headers is None:
+            headers = self.headers
 
         for i in range(self._num_retry):
             try:
                 response = method(
                     url,
-                    headers=self.headers,
+                    headers=headers,
                     timeout=self._requestTimeout,
                     **kwargs
                 )
@@ -109,6 +78,39 @@ class Wallbox:
 
     def _post_helper(self, url, **kwargs):
         return self._request_method_helper(method=requests.post, url=url, **kwargs)
+
+
+
+
+
+    def authenticate(self):
+        auth_path = "users/signin"
+        auth = HTTPBasicAuth(self.username, self.password)
+        # if already has token:
+        if self.jwtToken != "":
+            # check if token is still valid
+            if round((self.jwtTokenTtl / 1000) - self.jwtTokenDrift, 0) > datetime.timestamp(datetime.now()):
+                return
+            # if not, check if refresh token is still valid
+            elif (self.jwtRefreshToken != ""
+                  and round((self.jwtRefreshTokenTtl / 1000) - self.jwtTokenDrift, 0)
+                  > datetime.timestamp(datetime.now())):
+                # try to refresh token
+                auth_path = "users/refresh-token"
+                auth = BearerAuth(self.jwtRefreshToken)
+
+        response = self._get_helper(url=f"{self.authUrl}{auth_path}", auth=auth, overcharge_headers={'Partner': 'wallbox'})
+
+        self.jwtToken = json.loads(response.text)["data"]["attributes"]["token"]
+        self.jwtRefreshToken = json.loads(response.text)["data"]["attributes"]["refresh_token"]
+        self.jwtTokenTtl = json.loads(response.text)["data"]["attributes"]["ttl"]
+        self.jwtRefreshTokenTtl = json.loads(response.text)["data"]["attributes"]["refresh_token_ttl"]
+        self.headers["Authorization"] = f"Bearer {self.jwtToken}"
+
+
+
+
+
 
 
     def getChargersList(self):
