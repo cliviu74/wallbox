@@ -153,3 +153,35 @@ class Wallbox:
     def setEnergyCost(self, chargerId, energyCost):
         response = self._post_helper(url=f"{self.baseUrl}chargers/config/{chargerId}", json={'energyCost': energyCost})
         return json.loads(response.text)
+
+
+    def setIcpMaxCurrent(self, chargerId, newIcpMaxCurrentValue):
+        response = self._post_helper(url=f"{self.baseUrl}chargers/config/{chargerId}", json={'icp_max_current': newIcpMaxCurrentValue})
+        return json.loads(response.text)
+
+    def getChargerSchedules(self, chargerId):
+        response = self._get_helper(f"{self.baseUrl}chargers/{chargerId}/schedules")
+        return json.loads(response.text)
+
+    """
+     Example request:
+     {
+         'schedules': [{
+             'id': 0,
+             'chargerId': 42,
+             'enable': 1,
+             'max_current': 1,
+             'max_energy': 0,
+             'days': {'friday': True, 'monday': True, 'saturday': True, 'sunday': True, 'thursday': True,
+                      'tuesday': True, 'wednesday': True},
+             'start': '2100',
+             'stop': '0500'
+         }]
+     }
+     Where id is the position to add/replace
+     """
+    def setChargerSchedules(self, chargerId, newSchedules):
+         for s in newSchedules.get('schedules', []):
+             s['chargerId'] = chargerId
+         response = self._post_helper(url=f"{self.baseUrl}chargers/{chargerId}/schedules", json=newSchedules)
+         return json.loads(response.text)

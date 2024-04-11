@@ -22,6 +22,7 @@ if __name__ == "__main__":
     max_charging_current = 32
     w.setMaxChargingCurrent(chargers[0], max_charging_current)
 
+    a = w.getChargerSchedules(chargers[0])
 
     d3 = w.getChargerStatus(chargers[0])
     if d3['config_data']['max_charging_current'] == max_charging_current:
