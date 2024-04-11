@@ -190,3 +190,15 @@ class Wallbox:
         except requests.exceptions.HTTPError as err:
             raise (err)
         return json.loads(response.text)
+
+    def setIcpMaxCurrent(self, chargerId, newIcpMaxCurrentValue):
+        try:
+            response = requests.post(
+                f"{self.baseUrl}chargers/config/{chargerId}",
+                headers=self.headers,
+                json={'icp_max_current': newIcpMaxCurrentValue},
+            )
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise (err)
+        return json.loads(response.text)
