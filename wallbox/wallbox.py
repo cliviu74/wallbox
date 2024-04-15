@@ -190,3 +190,49 @@ class Wallbox:
         except requests.exceptions.HTTPError as err:
             raise (err)
         return json.loads(response.text)
+
+    def getChargerSchedules(self, chargerId):
+        try:
+            response = requests.get(
+                f"{self.baseUrl}chargers/{chargerId}/schedules", headers=self.headers,
+                timeout=self._requestGetTimeout
+            )
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise (err)
+        return json.loads(response.text)
+
+    """
+    Example request:
+    {
+        'schedules': [{
+            'id': 0,
+            'chargerId': 42,
+            'enable': 1,
+            'max_current': 1,
+            'max_energy': 0,
+            'days': {'friday': True, 'monday': True, 'saturday': True, 'sunday': True, 'thursday': True,
+                     'tuesday': True, 'wednesday': True},
+            'start': '2100',
+            'stop': '0500'
+        }]
+    }
+
+    Where id is the position to add/replace
+    """
+
+    def setChargerSchedules(self, chargerId, newSchedules):
+        try:
+            # Enforce chargerId
+            for s in newSchedules.get('schedules', []):
+                s['chargerId'] = chargerId
+
+            response = requests.post(
+                f"{self.baseUrl}chargers/{chargerId}/schedules",
+                headers=self.headers,
+                json=newSchedules,
+            )
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise (err)
+        return json.loads(response.text)
