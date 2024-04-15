@@ -75,15 +75,16 @@ class Wallbox:
     def _post_helper(self, url, **kwargs):
         return self._request_method_helper(method=requests.post, url=url, **kwargs)
 
-
-
-
-
     def authenticate(self):
+        self._authenticate(from_refresh=False)
+
+    def _authenticate(self, from_refresh=False):
         auth_path = "users/signin"
         auth = HTTPBasicAuth(self.username, self.password)
+
+        ask_for_refresh = False
         # if already has token:
-        if self.jwtToken != "":
+        if from_refresh is False and self.jwtToken != "":
             # check if token is still valid
             if round((self.jwtTokenTtl / 1000) - self.jwtTokenDrift, 0) > datetime.timestamp(datetime.now()):
                 return
@@ -94,8 +95,17 @@ class Wallbox:
                 # try to refresh token
                 auth_path = "users/refresh-token"
                 auth = BearerAuth(self.jwtRefreshToken)
+                ask_for_refresh = True
 
-        response = self._get_helper(url=f"{self.authUrl}{auth_path}", auth=auth, overcharge_headers={'Partner': 'wallbox'})
+        try:
+            response = self._get_helper(url=f"{self.authUrl}{auth_path}", auth=auth, overcharge_headers={'Partner': 'wallbox'})
+        except requests.exceptions.HTTPError as err:
+            if from_refresh or ask_for_refresh is False:
+                raise(err)
+            #we need to redo a full "authentication" as the refresh token is probably no more valid or have an issue
+            #got this after running the integration for a while
+            self._authenticate(from_refresh=True)
+            return
 
         self.jwtToken = json.loads(response.text)["data"]["attributes"]["token"]
         self.jwtRefreshToken = json.loads(response.text)["data"]["attributes"]["refresh_token"]
