@@ -113,12 +113,6 @@ class Wallbox:
         self.jwtRefreshTokenTtl = json.loads(response.text)["data"]["attributes"]["refresh_token_ttl"]
         self.headers["Authorization"] = f"Bearer {self.jwtToken}"
 
-
-
-
-
-
-
     def getChargersList(self):
         chargerIds = []
         response = self._get_helper(f"{self.baseUrl}v3/chargers/groups")
