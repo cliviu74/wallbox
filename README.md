@@ -48,6 +48,10 @@ pip install wallbox
 
 - resumes a charging session
 
+### resumeSchedule(chargerId)
+
+- revert charger back to default schedule after manually starting a charging session
+
 ### getSessionList(chargerId, startDate, endDate)
 
 - provides the list of charging sessions between startDate and endDate
