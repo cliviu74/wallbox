@@ -50,7 +50,7 @@ pip install wallbox
 
 ### resumeSchedule(chargerId)
 
-- revert charger back to default schedule after manually starting a charging session
+- revert charger back to default schedule after manually starting a charging session, it reverts the charger back into "Eco Smart and Scheduled" charing mode, if used.
 
 ### getSessionList(chargerId, startDate, endDate)
 
