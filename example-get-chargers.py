@@ -1,5 +1,4 @@
 from wallbox import Wallbox, Statuses
-import time
 from dotenv import load_dotenv
 import os
 

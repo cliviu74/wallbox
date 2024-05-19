@@ -5,7 +5,6 @@ Wallbox class
 """
 
 from datetime import datetime
-from time import timezone
 from requests.auth import HTTPBasicAuth
 import requests
 import json
