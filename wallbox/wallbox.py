@@ -11,10 +11,9 @@ import json
 
 from wallbox.bearerauth import BearerAuth
 
-DEFAULT_TIMEOUT_S = 5
 
 class Wallbox:
-    def __init__(self, username, password, requestGetTimeout = DEFAULT_TIMEOUT_S, jwtTokenDrift = 0):
+    def __init__(self, username, password, requestGetTimeout = None, jwtTokenDrift = 0):
         self.username = username
         self.password = password
         self._requestGetTimeout = requestGetTimeout
@@ -176,6 +175,7 @@ class Wallbox:
                 f"{self.baseUrl}v3/chargers/{chargerId}/remote-action",
                 headers=self.headers,
                 data='{"action":9}',
+                timeout=self._requestGetTimeout,
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
