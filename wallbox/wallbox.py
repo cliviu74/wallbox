@@ -5,7 +5,6 @@ Wallbox class
 """
 
 from datetime import datetime
-from time import timezone
 from requests.auth import HTTPBasicAuth
 import requests
 import json
@@ -165,6 +164,18 @@ class Wallbox:
                 headers=self.headers,
                 data='{"action":1}',
                 timeout=self._requestGetTimeout,
+            )
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise (err)
+        return json.loads(response.text)
+
+    def resumeSchedule(self, chargerId):
+        try:
+            response = requests.post(
+                f"{self.baseUrl}v3/chargers/{chargerId}/remote-action",
+                headers=self.headers,
+                data='{"action":9}',
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
