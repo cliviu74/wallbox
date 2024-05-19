@@ -154,6 +154,18 @@ class Wallbox:
             raise (err)
         return json.loads(response.text)
 
+    def resumeSchedule(self, chargerId):
+        try:
+            response = requests.post(
+                f"{self.baseUrl}v3/chargers/{chargerId}/remote-action",
+                headers=self.headers,
+                data='{"action":9}',
+            )
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise (err)
+        return json.loads(response.text)
+
     def restartCharger(self, chargerId):
         try:
             response = requests.post(
