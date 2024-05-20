@@ -63,6 +63,51 @@ pip install wallbox
 - a full charger reboot can take a few minutes. Charger status will be slow to update (ie: READY (10s) -> DISCONNECTED (90s) -> READY)
 CAUTION: use this method with care!! Check if the charger is not in the middle of a firmware upgrade as this can brick your charger. 
 
+### getChargerSchedules(chargerId)
+
+- gets the currently configured schedules for that charger. 
+
+Response is a JSON structure like the following:
+
+```json
+{
+    'schedules': [{
+        'chargerId': 42,
+        'enable': 1,
+        'max_current': 1,
+        'max_energy': 0,
+        'days': {'friday': true, 'monday': true, 'saturday': true, 'sunday': true, 'thursday': true,
+                    'tuesday': true, 'wednesday': true},
+        'start': '2100',
+        'stop': '0500'
+    }]
+}
+```
+
+### setChargerSchedules(chargerId, newSchedules)
+
+- Create or replace an existing schedule. 
+
+`newSchedules` is a dictionary like the following:
+
+```json
+{
+    'schedules': [{
+        'id': 0,
+        'chargerId': 42,
+        'enable': 1,
+        'max_current': 1,
+        'max_energy': 0,
+        'days': {'friday': true, 'monday': true, 'saturday': true, 'sunday': true, 'thursday': true,
+                    'tuesday': true, 'wednesday': true},
+        'start': '2100',
+        'stop': '0500'
+    }]
+}
+```
+
+As schedules returned by `getChargerSchedules` are positional, the `id` field in the payload represents the position of the schedule to add/replace.
+
 ## Simple example
 
 ```python
