@@ -220,3 +220,38 @@ class Wallbox:
         except requests.exceptions.HTTPError as err:
             raise (err)
         return json.loads(response.text)
+
+
+    def setIcpMaxCurrent(self, chargerId, newIcpMaxCurrentValue):
+        try:
+            response = requests.post(
+                f"{self.baseUrl}chargers/config/{chargerId}",
+                headers=self.headers,
+                json={'icp_max_current': newIcpMaxCurrentValue},
+
+    def getChargerSchedules(self, chargerId):
+        try:
+            response = requests.get(
+                f"{self.baseUrl}chargers/{chargerId}/schedules", headers=self.headers,
+                timeout=self._requestGetTimeout
+            )
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise (err)
+        return json.loads(response.text)
+
+    def setChargerSchedules(self, chargerId, newSchedules):
+        try:
+            # Enforce chargerId
+            for schedule in newSchedules.get('schedules', []):
+                schedule['chargerId'] = chargerId
+
+            response = requests.post(
+                f"{self.baseUrl}chargers/{chargerId}/schedules",
+                headers=self.headers,
+                json=newSchedules,
+            )
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise (err)
+        return json.loads(response.text)
