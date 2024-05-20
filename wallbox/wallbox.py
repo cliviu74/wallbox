@@ -224,8 +224,8 @@ class Wallbox:
     def setChargerSchedules(self, chargerId, newSchedules):
         try:
             # Enforce chargerId
-            for s in newSchedules.get('schedules', []):
-                s['chargerId'] = chargerId
+            for schedule in newSchedules.get('schedules', []):
+                schedule['chargerId'] = chargerId
 
             response = requests.post(
                 f"{self.baseUrl}chargers/{chargerId}/schedules",
