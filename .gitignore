@@ -134,3 +134,6 @@ dmypy.json
 test_liviu.py
 APIDEBUG.md
 .DS_Store
+
+# PyCharm
+.idea/
