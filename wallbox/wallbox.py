@@ -229,6 +229,7 @@ class Wallbox:
                 headers=self.headers,
                 json={'icp_max_current': newIcpMaxCurrentValue},
                 timeout=self._requestGetTimeout
+
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
