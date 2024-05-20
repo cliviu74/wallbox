@@ -63,6 +63,12 @@ pip install wallbox
 - a full charger reboot can take a few minutes. Charger status will be slow to update (ie: READY (10s) -> DISCONNECTED (90s) -> READY)
 CAUTION: use this method with care!! Check if the charger is not in the middle of a firmware upgrade as this can brick your charger. 
 
+### setIcpMaxCurrent(chargerId, newIcpMaxCurrentValue)
+
+- sets charger Maximum ICP Current available (Amps).
+
+Please note that the wallbox may refuse this action if not setup properly of if not supported by your model
+
 ## Simple example
 
 ```python
