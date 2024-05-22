@@ -5,8 +5,8 @@ from wallbox import Wallbox
 import requests
 import json
 import time
+from credentials_for_test_do_not_commit_this import PASSWORD, USER_NAME
 
-from credentials_for_test_do_not_commit_this.py import PASSWORD, USER_NAME
 
 if __name__ == "__main__":
 
