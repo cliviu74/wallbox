@@ -225,7 +225,6 @@ class Wallbox:
             raise (err)
         return json.loads(response.text)
 
-
     def setIcpMaxCurrent(self, chargerId, newIcpMaxCurrentValue):
         try:
             response = requests.post(
