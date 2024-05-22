@@ -138,3 +138,4 @@ APIDEBUG.md
 # PyCharm
 .idea/
 /tests/credentials_for_test_do_not_commit_this.py
+/tests/test_scratch_pad_for_development.py
