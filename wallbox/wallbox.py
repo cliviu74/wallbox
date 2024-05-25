@@ -34,16 +34,13 @@ class Wallbox:
     def requestGetTimeout(self):
         return self._requestGetTimeout
 
-    def authenticate(self):
-        self._authenticate(from_refresh=False)
-
-    def _authenticate(self, from_refresh=False):
+    def authenticate(self, from_refresh=False):
         auth_path = "users/signin"
         auth = HTTPBasicAuth(self.username, self.password)
 
         ask_for_refresh = False
         # if already has token:
-        if from_refresh is False and self.jwtToken != "":
+        if self.jwtToken != "":
             # check if token is still valid
             if round((self.jwtTokenTtl / 1000) - self.jwtTokenDrift, 0) > datetime.timestamp(datetime.now()):
                 return
@@ -65,11 +62,14 @@ class Wallbox:
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            if from_refresh or ask_for_refresh is False:
+            if ask_for_refresh is False:
                 raise(err)
             #we need to redo a full "authentication" as the refresh token is probably no more valid or have an issue
             #got this after running the integration for a while
-            self._authenticate(from_refresh=True)
+            #force token reset, and recall authentication
+            self.jwtToken = ""
+            self.jwtRefreshToken = ""
+            self.authenticate()
             return
 
         self.jwtToken = json.loads(response.text)["data"]["attributes"]["token"]
