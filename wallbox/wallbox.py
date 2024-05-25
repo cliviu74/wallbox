@@ -34,7 +34,7 @@ class Wallbox:
     def requestGetTimeout(self):
         return self._requestGetTimeout
 
-    def authenticate(self, from_refresh=False):
+    def authenticate(self):
         auth_path = "users/signin"
         auth = HTTPBasicAuth(self.username, self.password)
 
