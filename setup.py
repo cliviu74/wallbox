@@ -18,7 +18,7 @@ setup(
     url="https://github.com/cliviu74/wallbox",
     license="Apache 2",
     packages=["wallbox"],
-    install_requires=["requests>=2.22.0", "simplejson>=3.16.0", "aenum>=3.1.8"],
+    install_requires=["requests>=2.22.0", "aenum>=3.1.8"],
     python_requires=">=3.7",
     classifiers=["Programming Language :: Python :: 3",],
 )
