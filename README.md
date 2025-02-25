@@ -118,6 +118,8 @@ Response is a JSON structure like the following:
 }
 ```
 
+As schedules returned by `getChargerSchedules` are positional, the `id` field in the payload represents the position of the schedule to add/replace.
+
 ### enableEcoSmart(chargerId, mode)
 
 - Enable Eco Smart (called Solar Charging in the app)
@@ -130,7 +132,6 @@ Valid modes:
 
 - Disable Eco Smart (called Solar Charging in the app)
 
-As schedules returned by `getChargerSchedules` are positional, the `id` field in the payload represents the position of the schedule to add/replace.
 
 ## Simple example
 
