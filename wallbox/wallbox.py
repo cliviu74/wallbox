@@ -256,3 +256,39 @@ class Wallbox:
         except requests.exceptions.HTTPError as err:
             raise (err)
         return json.loads(response.text)
+
+    def enableEcoSmart(self, chargerId, mode: int = 0):
+        try:
+            response = requests.put(
+                f"{self.baseUrl}v4/chargers/{chargerId}/eco-smart",
+                headers=self.headers,
+                json={
+                    "data": {
+                        "attributes": {"enabled": 1, "mode": mode},
+                        "type": "eco_smart",
+                    },
+                },
+                timeout=self._requestGetTimeout,
+            )
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise (err)
+        return response.status_code
+
+    def disableEcoSmart(self, chargerId):
+        try:
+            response = requests.put(
+                f"{self.baseUrl}v4/chargers/{chargerId}/eco-smart",
+                headers=self.headers,
+                json={
+                    "data": {
+                        "attributes": {"enabled": 0, "mode": 0},
+                        "type": "eco_smart",
+                    }
+                },
+                timeout=self._requestGetTimeout,
+            )
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise (err)
+        return response.status_code
