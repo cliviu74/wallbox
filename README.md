@@ -69,6 +69,9 @@ pip install wallbox
 - a full charger reboot can take a few minutes. Charger status will be slow to update (ie: READY (10s) -> DISCONNECTED (90s) -> READY)
 CAUTION: use this method with care!! Check if the charger is not in the middle of a firmware upgrade as this can brick your charger. 
 
+### updateFirmware(chargerId)
+
+- trigger a firmware update when available.
 
 ### setIcpMaxCurrent(chargerId, newIcpMaxCurrentValue)
 

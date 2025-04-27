@@ -198,6 +198,19 @@ class Wallbox:
             raise (err)
         return json.loads(response.text)
 
+    def updateFirmware(self, chargerId):
+        try:
+            response = requests.post(
+                f"{self.baseUrl}v3/chargers/{chargerId}/remote-action",
+                headers=self.headers,
+                data='{"action":5}',
+                timeout=self._requestGetTimeout
+            )
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise (err)
+        return json.loads(response.text)
+
     def getSessionList(self, chargerId, startDate, endDate):
         try:
             payload = {'charger': chargerId, 'start_date': startDate.timestamp(), 'end_date': endDate.timestamp() }
