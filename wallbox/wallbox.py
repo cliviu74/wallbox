@@ -86,7 +86,7 @@ class Wallbox:
     def getChargerStatus(self, chargerId):
         try:
             response = requests.get(
-                f"{self.baseUrl}chargers/status/{chargerId}", 
+                f"{self.baseUrl}chargers/status/{chargerId}",
                 headers=self.headers,
                 timeout=self._requestGetTimeout
             )
@@ -240,7 +240,7 @@ class Wallbox:
         except requests.exceptions.HTTPError as err:
             raise (err)
         return json.loads(response.text)
-    
+
     def getChargerSchedules(self, chargerId):
         try:
             response = requests.get(
@@ -297,6 +297,56 @@ class Wallbox:
                     "data": {
                         "attributes": {"enabled": 0, "mode": 0},
                         "type": "eco_smart",
+                    }
+                },
+                timeout=self._requestGetTimeout,
+            )
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise (err)
+        return response.status_code
+
+    def getPhaseSwitch(self, uid):
+        try:
+            response = requests.get(
+                f"{self.baseUrl}v4/chargers/{uid}/phase-switch",
+                headers=self.headers,
+                timeout=self._requestGetTimeout,
+            )
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise (err)
+        return json.loads(response.text)
+
+    def enablePhaseSwitch(self, uid):
+        try:
+            response = requests.put(
+                f"{self.baseUrl}v4/chargers/{uid}/phase-switch",
+                headers=self.headers,
+                json={
+                    "data": {
+                        "id": uid,
+                        "attributes": {"enabled": True},
+                        "type": "phase-switch"
+                    }
+                },
+                timeout=self._requestGetTimeout,
+            )
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            raise (err)
+        return response.status_code
+
+    def disablePhaseSwitch(self, uid):
+        try:
+            response = requests.put(
+                f"{self.baseUrl}v4/chargers/{uid}/phase-switch",
+                headers=self.headers,
+                json={
+                    "data": {
+                        "id": uid,
+                        "attributes": {"enabled": False},
+                        "type": "phase-switch"
                     }
                 },
                 timeout=self._requestGetTimeout,
