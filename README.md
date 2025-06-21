@@ -2,13 +2,6 @@
 
 Python Module interface for Wallbox EV chargers api
 
-# WARNING - Changes in upstream API - Ratelimits causing 429 "Too Many Requests"
-
-June 17 2025 - we have noticed the API calls to the wallbox API are now being throttled with 429 - "Too Many Requests"
-Through experimentation, we have found that adding a 60 seconds delay between API calls improves the situation.
-We will be looking for a solution to this issue, in the meantime we recommend you catch the 429 exceptions and implement exponential backoffs or add 60 seconds delay between api calls.
-
-
 ## Requirements
 
 Python 3.7 or older
@@ -185,3 +178,13 @@ for chargerId in w.getChargersList():
     # Print the status the charger is currently in using the status id
     print(f"Charger Mode: {Statuses(chargerStatus['status_id']).name}")
 ```
+
+# Issues
+
+# WARNING - Changes in upstream API - Ratelimits causing 429 "Too Many Requests"
+
+June 17 2025 - we have noticed the API calls to the wallbox API are now being throttled with 429 - "Too Many Requests"
+Through experimentation, we have found that adding a 60 seconds delay between API calls improves the situation.
+We will be looking for a solution to this issue, in the meantime we recommend you catch the 429 exceptions and implement exponential backoffs or add 60 seconds delay between api calls.
+
+June 19 2025 - API ratelimit seems to have been improved. Please be aware this can happen again so continue implementing backoff/retries to the upstream API.
