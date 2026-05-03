@@ -1,0 +1,4 @@
+-r requirements.txt
+pytest>=7.0
+pytest-httpserver>=1.0
+requests-mock>=1.11
