@@ -97,7 +97,11 @@ class Wallbox:
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            raise (err)
+            try:
+                msg = json.loads(response.text)["message"]
+                raise RuntimeError(msg) from err
+            except (json.JSONDecodeError, KeyError):
+                raise (err)
         for group in json.loads(response.text)["result"]["groups"]:
             for charger in group["chargers"]:
                 chargerIds.append(charger["id"])
@@ -112,7 +116,11 @@ class Wallbox:
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            raise (err)
+            try:
+                msg = json.loads(response.text)["message"]
+                raise RuntimeError(msg) from err
+            except (json.JSONDecodeError, KeyError):
+                raise (err)
         return json.loads(response.text)
 
     def unlockCharger(self, chargerId):
@@ -125,7 +133,11 @@ class Wallbox:
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            raise (err)
+            try:
+                msg = json.loads(response.text)["message"]
+                raise RuntimeError(msg) from err
+            except (json.JSONDecodeError, KeyError):
+                raise (err)
         return json.loads(response.text)
 
     def lockCharger(self, chargerId):
@@ -138,7 +150,11 @@ class Wallbox:
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            raise (err)
+            try:
+                msg = json.loads(response.text)["message"]
+                raise RuntimeError(msg) from err
+            except (json.JSONDecodeError, KeyError):
+                raise (err)
         return json.loads(response.text)
 
     def setMaxChargingCurrent(self, chargerId, newMaxChargingCurrentValue):
@@ -151,7 +167,11 @@ class Wallbox:
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            raise (err)
+            try:
+                msg = json.loads(response.text)["message"]
+                raise RuntimeError(msg) from err
+            except (json.JSONDecodeError, KeyError):
+                raise (err)
         return json.loads(response.text)
 
     def pauseChargingSession(self, chargerId):
@@ -164,7 +184,11 @@ class Wallbox:
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            raise (err)
+            try:
+                msg = json.loads(response.text)["message"]
+                raise RuntimeError(msg) from err
+            except (json.JSONDecodeError, KeyError):
+                raise (err)
         return json.loads(response.text)
 
     def resumeChargingSession(self, chargerId):
@@ -177,7 +201,11 @@ class Wallbox:
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            raise (err)
+            try:
+                msg = json.loads(response.text)["message"]
+                raise RuntimeError(msg) from err
+            except (json.JSONDecodeError, KeyError):
+                raise (err)
         return json.loads(response.text)
 
     def resumeSchedule(self, chargerId):
@@ -190,7 +218,11 @@ class Wallbox:
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            raise (err)
+            try:
+                msg = json.loads(response.text)["message"]
+                raise RuntimeError(msg) from err
+            except (json.JSONDecodeError, KeyError):
+                raise (err)
         return json.loads(response.text)
 
     def restartCharger(self, chargerId):
@@ -203,7 +235,11 @@ class Wallbox:
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            raise (err)
+            try:
+                msg = json.loads(response.text)["message"]
+                raise RuntimeError(msg) from err
+            except (json.JSONDecodeError, KeyError):
+                raise (err)
         return json.loads(response.text)
 
     def updateFirmware(self, chargerId):
@@ -231,7 +267,11 @@ class Wallbox:
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            raise (err)
+            try:
+                msg = json.loads(response.text)["message"]
+                raise RuntimeError(msg) from err
+            except (json.JSONDecodeError, KeyError):
+                raise (err)
         return json.loads(response.text)
 
     def setEnergyCost(self, chargerId, energyCost):
@@ -244,7 +284,11 @@ class Wallbox:
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            raise (err)
+            try:
+                msg = json.loads(response.text)["message"]
+                raise RuntimeError(msg) from err
+            except (json.JSONDecodeError, KeyError):
+                raise (err)
         return json.loads(response.text)
 
 
@@ -258,7 +302,11 @@ class Wallbox:
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            raise (err)
+            try:
+                msg = json.loads(response.text)["message"]
+                raise RuntimeError(msg) from err
+            except (json.JSONDecodeError, KeyError):
+                raise (err)
         return json.loads(response.text)
     
     def getChargerSchedules(self, chargerId):
@@ -270,7 +318,11 @@ class Wallbox:
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            raise (err)
+            try:
+                msg = json.loads(response.text)["message"]
+                raise RuntimeError(msg) from err
+            except (json.JSONDecodeError, KeyError):
+                raise (err)
         return json.loads(response.text)
 
     def setChargerSchedules(self, chargerId, newSchedules):
@@ -287,7 +339,11 @@ class Wallbox:
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            raise (err)
+            try:
+                msg = json.loads(response.text)["message"]
+                raise RuntimeError(msg) from err
+            except (json.JSONDecodeError, KeyError):
+                raise (err)
         return json.loads(response.text)
 
     def enableEcoSmart(self, chargerId, mode: int = 0):
