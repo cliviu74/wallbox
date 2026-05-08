@@ -35,8 +35,9 @@ class Wallbox:
         return self._requestGetTimeout
 
     def authenticate(self):
-        auth_path = "users/signin"
+        authPath = "users/signin"
         auth = HTTPBasicAuth(self.username, self.password)
+        usedRefreshToken = False
         # if already has token:
         if self.jwtToken != "":
             # check if token is still valid
@@ -47,19 +48,38 @@ class Wallbox:
                   and round((self.jwtRefreshTokenTtl / 1000) - self.jwtTokenDrift, 0)
                   > datetime.timestamp(datetime.now())):
                 # try to refresh token
-                auth_path = "users/refresh-token"
+                authPath = "users/refresh-token"
                 auth = BearerAuth(self.jwtRefreshToken)
+                usedRefreshToken = True
 
         try:
             response = requests.get(
-                f"{self.authUrl}{auth_path}",
+                f"{self.authUrl}{authPath}",
                 auth=auth,
                 headers={'Partner': 'wallbox'},
                 timeout=self._requestGetTimeout
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            raise (err)
+            # If a refresh-token attempt was rejected (server-side invalidation
+            # despite our locally-tracked TTL still being valid), fall back to
+            # a fresh sign-in with the stored credentials before giving up.
+            if (usedRefreshToken
+                    and err.response is not None
+                    and err.response.status_code == 401):
+                self.jwtToken = ""
+                self.jwtRefreshToken = ""
+                self.jwtTokenTtl = 0
+                self.jwtRefreshTokenTtl = 0
+                response = requests.get(
+                    f"{self.authUrl}users/signin",
+                    auth=HTTPBasicAuth(self.username, self.password),
+                    headers={'Partner': 'wallbox'},
+                    timeout=self._requestGetTimeout
+                )
+                response.raise_for_status()
+            else:
+                raise (err)
 
         self.jwtToken = json.loads(response.text)["data"]["attributes"]["token"]
         self.jwtRefreshToken = json.loads(response.text)["data"]["attributes"]["refresh_token"]
