@@ -188,3 +188,51 @@ Through experimentation, we have found that adding a 60 seconds delay between AP
 We will be looking for a solution to this issue, in the meantime we recommend you catch the 429 exceptions and implement exponential backoffs or add 60 seconds delay between api calls.
 
 June 19 2025 - API ratelimit seems to have been improved. Please be aware this can happen again so continue implementing backoff/retries to the upstream API.
+
+## Retry-on-429 (built in)
+
+The library now retries 429 responses transparently using `urllib3.Retry`. The
+`Retry-After` header is honored when present; otherwise an exponential backoff
+is applied. Once retries are exhausted the same `requests.HTTPError` you would
+have seen previously is raised, so existing callers do not need to change.
+
+The defaults are conservative (3 retries, `backoffFactor=1.0`) and can be tuned
+at construction time:
+
+```python
+w = Wallbox(user, password, maxRetries=5, backoffFactor=2.0)
+```
+
+5xx responses are intentionally **not** retried: a few POST endpoints in this
+library are non-idempotent (`restartCharger`, `updateFirmware`) and a transient
+server error after the device has already accepted the action could otherwise
+trigger a duplicate. Auth failures (401/403) are also not retried so that bad
+credentials surface immediately rather than burning the retry budget. Network
+errors (DNS, connection refused, timeouts) are not retried either — that
+decision belongs to a separate change.
+
+### Behaviour and observability
+
+Failure semantics callers should expect:
+
+| Outcome | Caller sees |
+|---|---|
+| Successful call | decoded JSON / status code |
+| 429, retry succeeds | decoded JSON (retry happens transparently) |
+| 429, retries exhausted | `requests.HTTPError` with `response.status_code == 429` |
+| 401 / 403 (auth) | `requests.HTTPError` immediately, no retry |
+| Other 4xx | `requests.HTTPError` immediately, no retry |
+| 5xx | `requests.HTTPError` immediately, no retry |
+| Network error | `requests.ConnectionError` / `requests.Timeout` immediately, no retry |
+
+The library does not emit its own log records. urllib3 logs each retry at
+`WARNING` level on the `urllib3.connectionpool` logger — callers who want
+visibility into retries can configure that logger:
+
+```python
+import logging
+logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
+```
+
+In Home Assistant this surfaces in the integration's debug log when the user
+enables debug logging for the wallbox integration.

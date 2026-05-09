@@ -5,7 +5,9 @@ Wallbox class
 """
 
 from datetime import datetime
+from requests.adapters import HTTPAdapter
 from requests.auth import HTTPBasicAuth
+from urllib3.util.retry import Retry
 import requests
 import json
 
@@ -13,7 +15,15 @@ from wallbox.bearerauth import BearerAuth
 
 
 class Wallbox:
-    def __init__(self, username, password, requestGetTimeout = None, jwtTokenDrift = 0):
+    def __init__(
+        self,
+        username,
+        password,
+        requestGetTimeout=None,
+        jwtTokenDrift=0,
+        maxRetries=3,
+        backoffFactor=1.0,
+    ):
         self.username = username
         self.password = password
         self._requestGetTimeout = requestGetTimeout
@@ -29,6 +39,35 @@ class Wallbox:
             "Content-Type": "application/json;charset=UTF-8",
             "User-Agent": "HomeAssistantWallboxPlugin/1.0.0",
         }
+        self._session = self._buildSession(maxRetries, backoffFactor)
+
+    @staticmethod
+    def _buildSession(maxRetries, backoffFactor):
+        # Retry on rate-limit (429) responses only. Retry-After headers are
+        # honored automatically; if absent, urllib3 falls back to exponential
+        # backoff (backoffFactor * 2^attempt). 5xx responses are intentionally
+        # excluded from the forcelist because some POST endpoints in this lib
+        # are not idempotent (restartCharger, updateFirmware) and a transient
+        # 5xx after the device has already accepted the action could otherwise
+        # trigger a duplicate. Network errors (connect=0, read=0) are likewise
+        # not retried — that decision belongs to a separate change with its
+        # own discussion. raise_on_status is disabled so callers continue to
+        # receive requests.HTTPError once retries are exhausted, preserving
+        # the existing exception contract.
+        retry = Retry(
+            total=maxRetries,
+            connect=0,
+            read=0,
+            status_forcelist=(429,),
+            allowed_methods=frozenset(["GET", "POST", "PUT", "DELETE"]),
+            backoff_factor=backoffFactor,
+            respect_retry_after_header=True,
+            raise_on_status=False,
+        )
+        session = requests.Session()
+        adapter = HTTPAdapter(max_retries=retry)
+        session.mount("https://", adapter)
+        return session
 
     @property
     def requestGetTimeout(self):
@@ -53,7 +92,7 @@ class Wallbox:
                 usedRefreshToken = True
 
         try:
-            response = requests.get(
+            response = self._session.get(
                 f"{self.authUrl}{authPath}",
                 auth=auth,
                 headers={'Partner': 'wallbox'},
@@ -71,7 +110,7 @@ class Wallbox:
                 self.jwtRefreshToken = ""
                 self.jwtTokenTtl = 0
                 self.jwtRefreshTokenTtl = 0
-                response = requests.get(
+                response = self._session.get(
                     f"{self.authUrl}users/signin",
                     auth=HTTPBasicAuth(self.username, self.password),
                     headers={'Partner': 'wallbox'},
@@ -90,7 +129,7 @@ class Wallbox:
     def getChargersList(self):
         chargerIds = []
         try:
-            response = requests.get(
+            response = self._session.get(
                 f"{self.baseUrl}v3/chargers/groups",
                 headers=self.headers,
                 timeout=self._requestGetTimeout
@@ -105,7 +144,7 @@ class Wallbox:
 
     def getChargerStatus(self, chargerId):
         try:
-            response = requests.get(
+            response = self._session.get(
                 f"{self.baseUrl}chargers/status/{chargerId}", 
                 headers=self.headers,
                 timeout=self._requestGetTimeout
@@ -117,7 +156,7 @@ class Wallbox:
 
     def unlockCharger(self, chargerId):
         try:
-            response = requests.put(
+            response = self._session.put(
                 f"{self.baseUrl}v2/charger/{chargerId}",
                 headers=self.headers,
                 data='{"locked":0}',
@@ -130,7 +169,7 @@ class Wallbox:
 
     def lockCharger(self, chargerId):
         try:
-            response = requests.put(
+            response = self._session.put(
                 f"{self.baseUrl}v2/charger/{chargerId}",
                 headers=self.headers,
                 data='{"locked":1}',
@@ -143,7 +182,7 @@ class Wallbox:
 
     def setMaxChargingCurrent(self, chargerId, newMaxChargingCurrentValue):
         try:
-            response = requests.put(
+            response = self._session.put(
                 f"{self.baseUrl}v2/charger/{chargerId}",
                 headers=self.headers,
                 data=f'{{ "maxChargingCurrent":{newMaxChargingCurrentValue}}}',
@@ -156,7 +195,7 @@ class Wallbox:
 
     def pauseChargingSession(self, chargerId):
         try:
-            response = requests.post(
+            response = self._session.post(
                 f"{self.baseUrl}v3/chargers/{chargerId}/remote-action",
                 headers=self.headers,
                 data='{"action":2}',
@@ -169,7 +208,7 @@ class Wallbox:
 
     def resumeChargingSession(self, chargerId):
         try:
-            response = requests.post(
+            response = self._session.post(
                 f"{self.baseUrl}v3/chargers/{chargerId}/remote-action",
                 headers=self.headers,
                 data='{"action":1}',
@@ -182,7 +221,7 @@ class Wallbox:
 
     def resumeSchedule(self, chargerId):
         try:
-            response = requests.post(
+            response = self._session.post(
                 f"{self.baseUrl}v3/chargers/{chargerId}/remote-action",
                 headers=self.headers,
                 data='{"action":9}',
@@ -195,7 +234,7 @@ class Wallbox:
 
     def restartCharger(self, chargerId):
         try:
-            response = requests.post(
+            response = self._session.post(
                 f"{self.baseUrl}v3/chargers/{chargerId}/remote-action",
                 headers=self.headers,
                 data='{"action":3}',
@@ -208,7 +247,7 @@ class Wallbox:
 
     def updateFirmware(self, chargerId):
         try:
-            response = requests.post(
+            response = self._session.post(
                 f"{self.baseUrl}v3/chargers/{chargerId}/remote-action",
                 headers=self.headers,
                 data='{"action":5}',
@@ -223,7 +262,7 @@ class Wallbox:
         try:
             payload = {'charger': chargerId, 'start_date': startDate.timestamp(), 'end_date': endDate.timestamp() }
 
-            response = requests.get(
+            response = self._session.get(
                 f"{self.baseUrl}v4/sessions/stats",
                 params=payload,
                 headers=self.headers,
@@ -236,7 +275,7 @@ class Wallbox:
 
     def setEnergyCost(self, chargerId, energyCost):
         try:
-            response = requests.post(
+            response = self._session.post(
                 f"{self.baseUrl}chargers/config/{chargerId}",
                 headers=self.headers,
                 json={'energyCost': energyCost},
@@ -250,7 +289,7 @@ class Wallbox:
 
     def setIcpMaxCurrent(self, chargerId, newIcpMaxCurrentValue):
         try:
-            response = requests.post(
+            response = self._session.post(
                 f"{self.baseUrl}chargers/config/{chargerId}",
                 headers=self.headers,
                 json={'icp_max_current': newIcpMaxCurrentValue},
@@ -263,7 +302,7 @@ class Wallbox:
     
     def getChargerSchedules(self, chargerId):
         try:
-            response = requests.get(
+            response = self._session.get(
                 f"{self.baseUrl}chargers/{chargerId}/schedules",
                 headers=self.headers,
                 timeout=self._requestGetTimeout
@@ -279,7 +318,7 @@ class Wallbox:
             for schedule in newSchedules.get('schedules', []):
                 schedule['chargerId'] = chargerId
 
-            response = requests.post(
+            response = self._session.post(
                 f"{self.baseUrl}chargers/{chargerId}/schedules",
                 headers=self.headers,
                 json=newSchedules,
@@ -292,7 +331,7 @@ class Wallbox:
 
     def enableEcoSmart(self, chargerId, mode: int = 0):
         try:
-            response = requests.put(
+            response = self._session.put(
                 f"{self.baseUrl}v4/chargers/{chargerId}/eco-smart",
                 headers=self.headers,
                 json={
@@ -310,7 +349,7 @@ class Wallbox:
 
     def disableEcoSmart(self, chargerId):
         try:
-            response = requests.put(
+            response = self._session.put(
                 f"{self.baseUrl}v4/chargers/{chargerId}/eco-smart",
                 headers=self.headers,
                 json={
