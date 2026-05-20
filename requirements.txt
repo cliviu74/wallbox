@@ -1,7 +1,7 @@
 aenum==3.1.15
 certifi==2024.7.4
 charset-normalizer==3.3.0
-idna==3.7
+idna==3.15
 python-dotenv==1.0.1
 requests==2.32.4
 urllib3==2.6.3
